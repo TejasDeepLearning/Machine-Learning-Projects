@@ -1,1 +1,49 @@
 
+import streamlit as st
+import pandas as pd
+# from sklearn import datasets
+from sklearn.ensemble import GradientBoostingRegressor
+from sklearn.metrics import mean_squared_error
+
+st.write("""
+# Simple Housing Price Prediction App
+This app predicts the **Sales price** for houses in **Ames, Iowa**.
+""")
+
+st.sidebar.header('User Input Parameters')
+
+def user_input_features():
+    lot_frontage = st.sidebar.slider('Lot Frontage', 65, 80, 91)
+    lot_area = st.sidebar.slider('Lot Area', 8450, 9550, 11250)
+    overall_qual = st.sidebar.slider('Overall Quality', 6, 7, 8)
+    mas_vnr_area = st.sidebar.slider('Mas Vnr Area', 162, 196, 350)
+    data = {'lot_frontage': lot_frontage,
+            'lot_area': lot_area,
+            'overall_qual': overall_qual,
+            'mas_vnr_area': mas_vnr_area}
+    features = pd.DataFrame(data, index=[0])
+    return features
+
+df = user_input_features()
+
+st.subheader('User Input parameters')
+st.write(df)
+
+ames = pd.read_csv('/Users/Tejas/csv_files/housing_prices_competition_data/House_Prices_Advanced_Regression_Techniques_train.csv')
+X = ames.drop('SalePrice', axis=1)
+Y = ames.SalePrice
+
+reg = GradientBoostingRegressor()
+reg.fit(X, Y)
+
+prediction = reg.predict(df)
+mae = mean_squared_error(prediction, Y)
+
+st.subheader('Target To Predict')
+st.write(ames.SalePrice.head(3))
+
+st.subheader('Predictions Sample')
+st.write(prediction.head())
+
+st.subheader('Amount of error in Dollars')
+st.write(mae)
